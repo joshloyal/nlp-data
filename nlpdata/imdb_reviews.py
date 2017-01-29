@@ -14,18 +14,18 @@ from six.moves import cPickle as pickle
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import ShuffleSplit
+from sklearn.datasets.base import load_files
 
 from nlpdata.base import fetch_dataset, get_data_home, load_file, DataBundle
 
 
-URL = ("http://www.cs.cornell.edu/people/pabo/movie-review-data/"
-       "rt-polaritydata.tar.gz")
-ARCHIVE_NAME = "rt-polaritydata.tar.gz"
-CACHE_NAME = "rt-polaritydata.pkz"
-DATASET_FOLDER = "rt-polaritydata"
+URL = "http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
+ARCHIVE_NAME = "aclImdb_v1.tar.gz"
+CACHE_NAME = "aclImdb_v1.pkz"
+DATASET_FOLDER = "aclImdb"
 
 
-def download_movie_reviews(target_dir, cache_path):
+def download_imdb_reviews(target_dir, cache_path):
     archive_path = os.path.join(target_dir, ARCHIVE_NAME)
 
     if not os.path.exists(target_dir):
@@ -38,19 +38,13 @@ def download_movie_reviews(target_dir, cache_path):
     tarfile.open(archive_path, "r:gz").extractall(path=target_dir)
     os.remove(archive_path)
 
-    pos_path = glob.glob(os.path.join(target_dir, DATASET_FOLDER, '*.pos'))[0]
-    neg_path = glob.glob(os.path.join(target_dir, DATASET_FOLDER, '*.neg'))[0]
-    pos_data = load_file(pos_path, label=1, encoding='latin1')
-    neg_data = load_file(neg_path, label=0, encoding='latin1')
-    dataset = pd.concat([pos_data, neg_data])
-    X, y = dataset['data'].values, dataset['target'].values
-    cv = ShuffleSplit(n_splits=1, test_size=0.1, random_state=1234)
-    train, test = next(cv.split(y))
+    train_path = os.path.join(target_dir, DATASET_FOLDER, 'train')
+    test_path = os.path.join(target_dir, DATASET_FOLDER, 'test')
+    train_data = load_files(train_path, categories=['pos', 'neg'])
+    test_data = load_files(test_path, categories=['pos', 'neg'])
 
-    X_train, y_train, X_test, y_test = X[train], y[train], X[test], y[test]
-
-    cache = dict(train=DataBundle(data=X_train, target=y_train),
-                 test=DataBundle(data=X_test, target=y_test))
+    cache = dict(train=train_data,
+                 test=test_data)
 
     compressed_content = codecs.encode(pickle.dumps(cache), 'zlib_codec')
     with open(cache_path, 'wb') as f:
@@ -61,10 +55,11 @@ def download_movie_reviews(target_dir, cache_path):
     return cache
 
 
-def fetch_movie_reviews(as_onehot=False, train_test_split=False):
+def fetch_imdb_reviews(as_onehot=False, train_test_split=False):
     data_home = get_data_home()
     cache_path = os.path.join(data_home, CACHE_NAME)
-    movie_home = os.path.join(data_home, 'movie_reviews_home')
+
+    movie_home = os.path.join(data_home, 'imdb_reviews_home')
     cache = None
 
     if os.path.exists(cache_path):
@@ -81,8 +76,8 @@ def fetch_movie_reviews(as_onehot=False, train_test_split=False):
             print(e)
 
     if cache is None:
-        cache = download_movie_reviews(target_dir=movie_home,
-                                       cache_path=cache_path)
+        cache = download_imdb_reviews(target_dir=movie_home,
+                                      cache_path=cache_path)
 
     return fetch_dataset(cache,
                          train_test_split=train_test_split,

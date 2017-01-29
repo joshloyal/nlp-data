@@ -19,13 +19,13 @@ def to_categorical(target, n_classes=None):
     -------
     A binary matrix representation of the target.
     """
-    features = np.asarray(features, dtype='int').ravel()
+    target = np.asarray(target, dtype='int').ravel()
     if not n_classes:
-        n_classes = np.max(features) + 1
+        n_classes = np.max(target) + 1
 
-    n_samples = features.shape[0]
+    n_samples = target.shape[0]
     onehot_matrix = np.zeros((n_samples, n_classes), dtype=np.float32)
-    onehot_matrix[np.arange(n_samples), features] = 1
+    onehot_matrix[np.arange(n_samples), target] = 1
 
     return onehot_matrix
 
@@ -56,8 +56,8 @@ class DataBundle(object):
 
 def get_data_home(data_home=None):
     if data_home is None:
-        data_home = os.environ.get('VECGRAM_DATA',
-                                   os.path.join('~', 'vecgram_data'))
+        data_home = os.environ.get('NLP_DATA',
+                                   os.path.join('~', 'nlp_data'))
 
     data_home = os.path.expanduser(data_home)
     if not os.path.exists(data_home):
@@ -73,7 +73,7 @@ def load_file(file_name, label=0, encoding='utf-8'):
     return pd.DataFrame(dict(data=texts, target=np.repeat(label, len(texts))))
 
 
-def fetch_dataset(dataset, as_onehot=False):
+def fetch_dataset(dataset, train_test_split=False, as_onehot=False):
     dataset_train = dataset['train']
     dataset_test = dataset['test']
 
@@ -86,5 +86,10 @@ def fetch_dataset(dataset, as_onehot=False):
     if as_onehot:
         y_train = to_categorical(y_train, n_classes=n_classes)
         y_test = to_categorical(y_test, n_classes=n_classes)
+
+    if not train_test_split:
+        return (np.concatenate((x_train, x_test), axis=0),
+                np.concatenate((y_train, y_test), axis=0),
+                n_classes)
 
     return (x_train, y_train), (x_test, y_test), n_classes
