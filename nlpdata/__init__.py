@@ -1,2 +1,0 @@
-from nlpdata.pang_movie_reviews import fetch_movie_reviews
-from nlpdata.imdb_reviews import fetch_imdb_reviews

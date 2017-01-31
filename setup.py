@@ -2,7 +2,8 @@ from setuptools import setup
 
 
 PACKAGES = [
-    'nlpdata'
+    'nlp_data',
+    'nlp_data.sentiment'
 ]
 
 
@@ -12,7 +13,7 @@ def setup_package():
         version='0.1.0',
         description="Datasets for NLP Tasks",
         author='Joshua D. Loyal',
-        url='https://github.com/joshloyal/nlpdata',
+        url='https://github.com/joshloyal/nlp-data',
         license='MIT',
         install_requires=['numpy', 'pandas', 'scikit-learn'],
         packages=PACKAGES,
