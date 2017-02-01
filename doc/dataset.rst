@@ -1,4 +1,0 @@
-Dataset Documentation
-=====================
-
-* :doc:`sentiment`
