@@ -15,7 +15,7 @@ def setup_package():
         author='Joshua D. Loyal',
         url='https://github.com/joshloyal/nlp-data',
         license='MIT',
-        install_requires=['numpy', 'pandas', 'scikit-learn'],
+        install_requires=['numpy', 'pandas', 'scikit-learn', 'h5py', 'marisa-trie'],
         packages=PACKAGES,
     )
 
