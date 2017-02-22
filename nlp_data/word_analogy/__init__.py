@@ -1,0 +1,1 @@
+from nlp_data.word_analogy.mikolov_similarity import fetch_mikolov_similarity
