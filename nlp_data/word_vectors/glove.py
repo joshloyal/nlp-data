@@ -187,7 +187,7 @@ def to_gensim(embeddings, vocabulary):
     return model
 
 
-def fetch_glove_file(n_vocab="6B", n_dimensions=100, use_gensim=False):
+def fetch_glove(n_vocab="6B", n_dimensions=100, use_gensim=False):
     data_home = get_data_home()
     cache_path = os.path.join(data_home, 'glove_home', GLOVE_FOLDER)
     glove_home = os.path.join(data_home, 'glove_home', GLOVE_FOLDER)
