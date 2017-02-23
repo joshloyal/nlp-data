@@ -95,20 +95,20 @@ def fetch_mikolov_similarity(categories=None):
         If None (default), load all the categories.
         If not None, list of category names to load
         (other categories ignored). The possible categories are
-            - capital-common-countries
-            - capital-world
-            - city-in-state
-            - currency
-            - family
-            - gram1-adjective-to-adverbe
-            - gram2-opposite
-            - gram3-comparative
-            - gram4-superlative
-            - gram5-present-participle
-            - gram6-nationality-adjective
-            - gram7-past-tense
-            - gram8-plural
-            - gram9-plural-verbs
+        * capital-common-countries
+        * capital-world
+        * city-in-state
+        * currency
+        * family
+        * gram1-adjective-to-adverbe
+        * gram2-opposite
+        * gram3-comparative
+        * gram4-superlative
+        * gram5-present-participle
+        * gram6-nationality-adjective
+        * gram7-past-tense
+        * gram8-plural
+        * gram9-plural-verbs
     """
     data_home = get_data_home()
     cache_path = os.path.join(data_home, CACHE_NAME)
