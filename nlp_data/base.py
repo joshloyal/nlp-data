@@ -3,49 +3,18 @@ import os
 import numpy as np
 import pandas as pd
 
-
-def to_categorical(target, n_classes=None):
-    """Converts a target vector with integer labels to a binary class matrix.
-
-    Parameters
-    ----------
-    target: array-like of shape [n_samples,]
-        The target vector. Should be integers from 0 to n_classes.
-
-    n_classes: int or None
-        The total number of classes
-
-    Returns
-    -------
-    A binary matrix representation of the target.
-    """
-    target = np.asarray(target, dtype='int').ravel()
-    if not n_classes:
-        n_classes = np.max(target) + 1
-
-    n_samples = target.shape[0]
-    onehot_matrix = np.zeros((n_samples, n_classes), dtype=np.float32)
-    onehot_matrix[np.arange(n_samples), target] = 1
-
-    return onehot_matrix
-
-def get_shape(data):
-    if isinstance(data, list):
-        return len(data), 1
-    elif hasattr(data, 'shape'):
-        shape = data.shape
-        if len(shape) == 1:
-            return shape[0], 1
-        return shape
+from nlp_data import array_utils
 
 
 class DataBundle(object):
-    def __init__(self, data, target):
+    def __init__(self, data, target, filenames=[], description=''):
         self.data = data
         self.target = target
+        self.filenames = filenames
+        self.description = description
 
     def __repr__(self):
-        data_shape = get_shape(self.data)
+        data_shape = array_utils.get_shape(self.data)
         return ('%s(n_samples=%d, n_features=%d, n_classes=%d)' % (
                     self.__class__.__name__,
                     data_shape[0],
@@ -66,11 +35,18 @@ def get_data_home(data_home=None):
     return data_home
 
 
-def load_file(file_name, label=0, encoding='utf-8'):
-    with open(file_name, 'r') as f:
-        texts = [line.decode(encoding).strip() for line in f]
+def download_and_untar(target_path, url):
+    opener = urllib2.urlopen(url)
+    with open(target_path, 'wb') as f:
+        f.write(opener.read())
 
-    return pd.DataFrame(dict(data=texts, target=np.repeat(label, len(texts))))
+    tarfile.open(archive_path, "r:gz").extractall(path=target_dir)
+    os.remove(archive_path)
+
+
+def load_file(file_name, encoding='utf-8'):
+    with open(file_name, 'r') as f:
+        return [line.decode(encoding).strip() for line in f]
 
 
 def fetch_dataset(dataset, train_test_split=False, as_onehot=False):
@@ -84,8 +60,8 @@ def fetch_dataset(dataset, train_test_split=False, as_onehot=False):
     n_classes = np.max(y_train) + 1
 
     if as_onehot:
-        y_train = to_categorical(y_train, n_classes=n_classes)
-        y_test = to_categorical(y_test, n_classes=n_classes)
+        y_train = array_utils.to_categorical(y_train, n_classes=n_classes)
+        y_test = array_utils.to_categorical(y_test, n_classes=n_classes)
 
     if not train_test_split:
         return (np.concatenate((x_train, x_test), axis=0),

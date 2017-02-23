@@ -38,19 +38,23 @@ def download_movie_reviews(target_dir, cache_path):
     tarfile.open(archive_path, "r:gz").extractall(path=target_dir)
     os.remove(archive_path)
 
-    pos_path = glob.glob(os.path.join(target_dir, DATASET_FOLDER, '*.pos'))[0]
-    neg_path = glob.glob(os.path.join(target_dir, DATASET_FOLDER, '*.neg'))[0]
-    pos_data = load_file(pos_path, label=1, encoding='latin1')
-    neg_data = load_file(neg_path, label=0, encoding='latin1')
-    dataset = pd.concat([pos_data, neg_data])
-    X, y = dataset['data'].values, dataset['target'].values
+    filenames = [glob.glob(os.path.join(target_dir, DATASET_FOLDER, '*.pos'))[0],
+                 glob.glob(os.path.join(target_dir, DATASET_FOLDER, '*.neg'))[0]]
+
+    texts, target = [], []
+    for label, path in enumerate(filenames):
+        documents = load_file(path, encoding='latin1')
+        texts.extend(documents)
+        target.extend(len(documents) * [label])
+
+    X, y = np.array(texts), np.array(target)
     cv = ShuffleSplit(n_splits=1, test_size=0.1, random_state=1234)
     train, test = next(cv.split(y))
 
     X_train, y_train, X_test, y_test = X[train], y[train], X[test], y[test]
 
-    cache = dict(train=DataBundle(data=X_train, target=y_train),
-                 test=DataBundle(data=X_test, target=y_test))
+    cache = dict(train=DataBundle(data=X_train, target=y_train, filenames=[filenames[0]]),
+                 test=DataBundle(data=X_test, target=y_test, filenames=[filenames[1]]))
 
     compressed_content = codecs.encode(pickle.dumps(cache), 'zlib_codec')
     with open(cache_path, 'wb') as f:
@@ -94,6 +98,7 @@ def fetch_movie_reviews(as_onehot=False, train_test_split=False):
         cache = download_movie_reviews(target_dir=movie_home,
                                        cache_path=cache_path)
 
+    print(cache)
     return fetch_dataset(cache,
                          train_test_split=train_test_split,
                          as_onehot=as_onehot)

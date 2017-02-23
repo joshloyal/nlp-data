@@ -16,7 +16,7 @@ import pandas as pd
 from sklearn.model_selection import ShuffleSplit
 from sklearn.datasets.base import load_files
 
-from nlp_data.base import fetch_dataset, get_data_home, load_file, DataBundle
+from nlp_data import base
 
 
 URL = "http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
@@ -43,8 +43,8 @@ def download_imdb_reviews(target_dir, cache_path):
     train_data = load_files(train_path, categories=['pos', 'neg'])
     test_data = load_files(test_path, categories=['pos', 'neg'])
 
-    cache = dict(train=train_data,
-                 test=test_data)
+    cache = dict(train=base.to_databundle(train_data),
+                 test=base.to_databundle(test_data))
 
     compressed_content = codecs.encode(pickle.dumps(cache), 'zlib_codec')
     with open(cache_path, 'wb') as f:
@@ -66,7 +66,7 @@ def fetch_imdb_reviews(as_onehot=False, train_test_split=False):
     train_test_split : bool
         Whether to perform a train/test split
     """
-    data_home = get_data_home()
+    data_home = base.get_data_home()
     cache_path = os.path.join(data_home, CACHE_NAME)
 
     movie_home = os.path.join(data_home, 'imdb_reviews_home')
@@ -89,6 +89,6 @@ def fetch_imdb_reviews(as_onehot=False, train_test_split=False):
         cache = download_imdb_reviews(target_dir=movie_home,
                                       cache_path=cache_path)
 
-    return fetch_dataset(cache,
-                         train_test_split=train_test_split,
-                         as_onehot=as_onehot)
+    return base.fetch_dataset(cache,
+                              train_test_split=train_test_split,
+                              as_onehot=as_onehot)
