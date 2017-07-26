@@ -6,7 +6,7 @@ import codecs
 import glob
 import os
 import tarfile
-import urllib2
+import urllib.request as url_request
 import shutil
 import six
 from six.moves import cPickle as pickle
@@ -17,6 +17,7 @@ from sklearn.model_selection import ShuffleSplit
 from sklearn.datasets.base import load_files
 
 from nlp_data import base
+from nlp_data.nlp_io import chunk_read
 
 
 URL = "http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
@@ -31,13 +32,15 @@ def download_imdb_reviews(target_dir, cache_path):
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
 
-    opener = urllib2.urlopen(URL)
+    opener = url_request.urlopen(URL)
     with open(archive_path, 'wb') as f:
-        f.write(opener.read())
+        f.write(chunk_read(opener))
 
+    print('untar')
     tarfile.open(archive_path, "r:gz").extractall(path=target_dir)
     os.remove(archive_path)
 
+    print('split')
     train_path = os.path.join(target_dir, DATASET_FOLDER, 'train')
     test_path = os.path.join(target_dir, DATASET_FOLDER, 'test')
     train_data = load_files(train_path, categories=['pos', 'neg'])
@@ -46,6 +49,7 @@ def download_imdb_reviews(target_dir, cache_path):
     cache = dict(train=base.to_databundle(train_data),
                  test=base.to_databundle(test_data))
 
+    print('compress')
     compressed_content = codecs.encode(pickle.dumps(cache), 'zlib_codec')
     with open(cache_path, 'wb') as f:
         f.write(compressed_content)

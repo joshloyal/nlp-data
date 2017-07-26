@@ -6,7 +6,7 @@ import codecs
 import glob
 import os
 import tarfile
-import urllib2
+import urllib.request as url_request
 import shutil
 import six
 from six.moves import cPickle as pickle
@@ -31,7 +31,7 @@ def download_movie_reviews(target_dir, cache_path):
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
 
-    opener = urllib2.urlopen(URL)
+    opener = url_request.urlopen(URL)
     with open(archive_path, 'wb') as f:
         f.write(opener.read())
 
@@ -98,7 +98,6 @@ def fetch_movie_reviews(as_onehot=False, train_test_split=False):
         cache = download_movie_reviews(target_dir=movie_home,
                                        cache_path=cache_path)
 
-    print(cache)
     return fetch_dataset(cache,
                          train_test_split=train_test_split,
                          as_onehot=as_onehot)

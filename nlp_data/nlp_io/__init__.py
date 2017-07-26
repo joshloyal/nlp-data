@@ -1,1 +1,1 @@
-from nlp_data.nlp_io import progress_bar
+from nlp_data.nlp_io.progress import chunk_read

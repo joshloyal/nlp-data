@@ -1,4 +1,5 @@
 import os
+import urllib.request as url_request
 
 import numpy as np
 import pandas as pd
@@ -23,6 +24,10 @@ class DataBundle(object):
                 )
 
 
+def to_databundle(bunch):
+    return DataBundle(data=bunch.data, target=bunch.target)
+
+
 def get_data_home(data_home=None):
     if data_home is None:
         data_home = os.environ.get('NLP_DATA',
@@ -36,7 +41,7 @@ def get_data_home(data_home=None):
 
 
 def download_and_untar(target_path, url):
-    opener = urllib2.urlopen(url)
+    opener = url_request.urlopen(url)
     with open(target_path, 'wb') as f:
         f.write(opener.read())
 
@@ -45,8 +50,8 @@ def download_and_untar(target_path, url):
 
 
 def load_file(file_name, encoding='utf-8'):
-    with open(file_name, 'r') as f:
-        return [line.decode(encoding).strip() for line in f]
+    with open(file_name, encoding=encoding, mode='r') as f:
+        return [line.strip() for line in f]
 
 
 def fetch_dataset(dataset, train_test_split=False, as_onehot=False):

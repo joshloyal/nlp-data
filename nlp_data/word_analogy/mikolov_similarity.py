@@ -7,7 +7,7 @@ import collections
 import glob
 import os
 import tarfile
-import urllib2
+import urllib.request as url_request
 import shutil
 import six
 from six.moves import cPickle as pickle
@@ -56,7 +56,7 @@ def download_mikolov_similarity(target_dir, cache_path):
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
 
-    opener = urllib2.urlopen(URL)
+    opener = url_request.urlopen(URL)
     with open(archive_path, 'wb') as f:
         f.write(opener.read())
 
